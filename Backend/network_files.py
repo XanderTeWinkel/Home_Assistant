@@ -1,13 +1,19 @@
+import os
 from smb.SMBConnection import SMBConnection
+from dotenv import load_dotenv
+
+
+# Load .env file
+load_dotenv()
 
 # SMB Configuration
-SERVER_IP = '192.168.0.106'
-SHARE_NAME = 'HdFiles'
-USERNAME = 'Xandertew'
-PASSWORD = 'Soepkip2.0!'
-DOMAIN = ''
-CLIENT_MACHINE_NAME = 'client'
-SERVER_NAME = 'server'
+SERVER_IP = os.getenv("SERVER_IP")
+SHARE_NAME = os.getenv("SHARE_NAME")
+USERNAME = os.getenv("USERNAME")
+PASSWORD = os.getenv("PASSWORD")
+DOMAIN = os.getenv("DOMAIN")
+CLIENT_MACHINE_NAME = os.getenv("CLIENT_MACHINE_NAME")
+SERVER_NAME = os.getenv("SERVER_NAME")
 
 
 def get_files_list(path='/Plex/'):
@@ -15,7 +21,7 @@ def get_files_list(path='/Plex/'):
     Returns a list of files in the given path of the SMB share.
     Each file is represented as a dict with name and full path.
     """
-    conn = SMBConnection(USERNAME, PASSWORD, CLIENT_MACHINE_NAME, SERVER_NAME, domain=DOMAIN, use_ntlm_v2=True)
+    conn = SMBConnection(USERNAME, PASSWORD, CLIENT_MACHINE_NAME, SERVER_NAME, domain=DOMAIN, use_ntlm_v2=True) # type: ignore
     if not conn.connect(SERVER_IP, 139):
         raise ConnectionError(f"Unable to connect to SMB server {SERVER_IP}")
     
