@@ -7,6 +7,9 @@ interface FileItem {
   isDirectory: boolean;
 }
 
+// Read the backend URL from the environment variable
+const backendUrl = import.meta.env.VITE_BACKEND_URL
+
 export default {
   setup() {
     const files = ref<FileItem[]>([]);
@@ -19,7 +22,7 @@ export default {
       error.value = null;
 
       try {
-        const res = await fetch(`http://localhost:5000/files?path=${encodeURIComponent(path)}`);
+        const res = await fetch(`${backendUrl}/files?path=${encodeURIComponent(path)}`);
         const data = await res.json();
 
         if (data.error) throw new Error(data.error);
@@ -66,7 +69,7 @@ export default {
         / {{ part }}
       </span>
     </div>
-    
+
     <button class="back-btn" v-if="currentPath !== '/Plex/'" @click="fetchFiles('/Plex/')">
       ⬅ Back to root
     </button>

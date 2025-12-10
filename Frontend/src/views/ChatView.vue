@@ -2,6 +2,9 @@
 import { ref, nextTick } from 'vue'
 import axios from 'axios'
 
+// Read the backend URL from the environment variable
+const backendUrl = import.meta.env.VITE_BACKEND_URL
+
 const messages = ref<{ role: 'user' | 'ai', content: string }[]>([])
 const userInput = ref('')
 
@@ -13,7 +16,8 @@ async function sendMessage() {
     userInput.value = ''
 
     try {
-        const response = await axios.get('http://localhost:5000/chat', {
+        // Use the environment variable here
+        const response = await axios.get(`${backendUrl}/chat`, {
             params: { prompt: tempInput }
         })
         messages.value.push({ role: 'ai', content: response.data.response })
@@ -31,6 +35,7 @@ function scrollToBottom() {
     if (container) container.scrollTop = container.scrollHeight
 }
 </script>
+
 
 <template>
     <div class="chat-container">

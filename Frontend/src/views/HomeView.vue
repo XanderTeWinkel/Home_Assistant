@@ -25,6 +25,9 @@ interface NewsItem {
   image?: string;
 }
 
+// Read the backend URL from the environment variable
+const backendUrl = import.meta.env.VITE_BACKEND_URL
+
 export default defineComponent({
   name: 'HomeView',
   setup() {
@@ -39,7 +42,7 @@ export default defineComponent({
     const fetchWeather = async () => {
       loading.value = true;
       try {
-        const response = await axios.get('http://localhost:5000/weather');
+        const response = await axios.get(`${backendUrl}/weather`);
         weather.value = response.data;
       } catch (err: any) {
         error.value = 'Failed to fetch weather.';
@@ -50,7 +53,7 @@ export default defineComponent({
 
     const fetchNews = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/nos-news');
+        const response = await axios.get(`${backendUrl}/nos-news`);
         news.value = response.data;
         currentNewsIndex.value = 0;
         stopNewsCarousel();

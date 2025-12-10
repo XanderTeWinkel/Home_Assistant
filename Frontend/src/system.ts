@@ -16,6 +16,9 @@ export interface SystemInfo {
   network: NetworkInfo;
 }
 
+// Read the backend URL from the environment variable
+const backendUrl = import.meta.env.VITE_BACKEND_URL
+
 export const useSystemStore = defineStore('system', () => {
   const info = reactive<SystemInfo>({
     cpu: 0,
@@ -30,7 +33,7 @@ export const useSystemStore = defineStore('system', () => {
 
   const fetchSystemInfo = async () => {
     try {
-      const res = await fetch('http://localhost:5000/system-info');
+      const res = await fetch(`${backendUrl}/system-info`);
       const data = await res.json();
 
       // Update reactive object properties individually
