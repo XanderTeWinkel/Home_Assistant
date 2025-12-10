@@ -834,6 +834,24 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "redis"
+version = "7.1.0"
+description = "Python client for Redis database and key-value store"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "redis-7.1.0-py3-none-any.whl", hash = "sha256:23c52b208f92b56103e17c5d06bdc1a6c2c0b3106583985a76a18f83b265de2b"},
+    {file = "redis-7.1.0.tar.gz", hash = "sha256:b1cc3cfa5a2cb9c2ab3ba700864fb0ad75617b41f01352ce5779dabf6d5f9c3c"},
+]
+
+[package.extras]
+circuit-breaker = ["pybreaker (>=1.4.0)"]
+hiredis = ["hiredis (>=3.2.0)"]
+jwt = ["pyjwt (>=2.9.0)"]
+ocsp = ["cryptography (>=36.0.1)", "pyopenssl (>=20.0.1)", "requests (>=2.31.0)"]
+
+[[package]]
 name = "requests"
 version = "2.32.5"
 description = "Python HTTP for Humans."
@@ -866,6 +884,27 @@ files = [
     {file = "sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"},
     {file = "sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc"},
 ]
+
+[[package]]
+name = "spotipy"
+version = "2.25.2"
+description = "A light weight Python library for the Spotify Web API"
+optional = false
+python-versions = ">3.8"
+groups = ["main"]
+files = [
+    {file = "spotipy-2.25.2-py3-none-any.whl", hash = "sha256:694bc9734d94171716257bf18eea9f1cb2ff8c581e59c74464137433830cf890"},
+    {file = "spotipy-2.25.2.tar.gz", hash = "sha256:5ed45c044156ca5518997e2502b1f2c1e7336407cb1fb8fe112d144b4d5282c8"},
+]
+
+[package.dependencies]
+redis = ">=3.5.3"
+requests = ">=2.25.0"
+urllib3 = ">=1.26.0"
+
+[package.extras]
+memcache = ["pymemcache (>=3.5.2)"]
+test = ["autopep8 (>=2.3.2)", "flake8 (>=7.1.1)", "flake8-string-format (>=0.3.0)", "isort (>=5.13.2)"]
 
 [[package]]
 name = "tqdm"
@@ -955,4 +994,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "21a010a07fd187c714f5bbc91bac3568d3b5551759269e0e66421e072daaa923"
+content-hash = "cc4dab2f71abba0969f667fb43b1f105bca418b11bafe21260f70fbf0818e9e8"

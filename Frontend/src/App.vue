@@ -19,6 +19,7 @@ const route = useRoute();
       </div>
       <nav class="sidebar-nav">
         <router-link to="/home" class="nav-link" active-class="active">Home</router-link>
+        <router-link to="/spotify" class="nav-link" active-class="active">Spotify</router-link>
         <router-link to="/chat" class="nav-link" active-class="active">AI Chat</router-link>
         <router-link to="/file-management" class="nav-link" active-class="active">Files</router-link>
         <router-link to="/system-usage" class="nav-link" active-class="active">System Usage</router-link>

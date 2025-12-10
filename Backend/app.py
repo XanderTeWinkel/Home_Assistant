@@ -8,6 +8,8 @@ from weather import fetch_weather
 from network_files import get_files_list
 from ai_chat import chat_with_ai
 
+import spotify as spotify
+
 app = Flask(__name__)
 CORS(app)  # allow all origins
 
@@ -61,6 +63,49 @@ def chat():
         return jsonify({"error": "No prompt provided"}), 400
     response = chat_with_ai(user_input)
     return jsonify({"response": response})
+
+
+# Spotify routes
+@app.route("/spotify/current")
+def spotify_current():
+    return jsonify(spotify.get_current_track())
+
+
+@app.route("/spotify/devices")
+def spotify_devices():
+    return jsonify(spotify.get_devices())
+
+
+@app.route("/spotify/play", methods=["POST"])
+def spotify_play():
+    device_id = request.json.get("device_id")
+    return jsonify(spotify.start_playback(device_id))
+
+
+@app.route("/spotify/pause", methods=["POST"])
+def spotify_pause():
+    device_id = request.json.get("device_id")
+    return jsonify(spotify.pause_playback(device_id))
+
+
+@app.route("/spotify/next", methods=["POST"])
+def spotify_next():
+    device_id = request.json.get("device_id")
+    return jsonify(spotify.next_track(device_id))
+
+
+@app.route("/spotify/previous", methods=["POST"])
+def spotify_previous():
+    device_id = request.json.get("device_id")
+    return jsonify(spotify.previous_track(device_id))
+
+
+@app.route("/spotify/seek", methods=["POST"])
+def spotify_seek():
+    data = request.json
+    device_id = data.get("device_id")
+    position_s = data.get("position_s")
+    return jsonify(spotify.seek_track(position_s, device_id))
 
 
 if __name__ == "__main__":

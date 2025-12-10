@@ -1,12 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import Home from '../views/HomeView.vue'
-// @ts-ignore: no declaration file for .vue modules
-import SystemUsage from '../views/SystemUsageView.vue'
-// @ts-ignore: no declaration file for .vue modules
-import FileManagement from '../views/FileManagementView.vue'
-
+import Spotify from '../views/SpotifyView.vue'
 import Chat from '../views/ChatView.vue'
+import FileManagement from '../views/FileManagementView.vue'
+import SystemUsage from '../views/SystemUsageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +19,11 @@ const router = createRouter({
       path: '/home',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/spotify',
+      name: 'spotify',
+      component: Spotify
     },
     {
       path: '/chat',
