@@ -58,6 +58,7 @@ const windowData = computed(() => {
   background: #ffffff;
   border-radius: 1rem;
   padding: 1rem;
+  margin: 1rem;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
 }
 

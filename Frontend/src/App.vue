@@ -23,6 +23,7 @@ const route = useRoute();
         <router-link to="/chat" class="nav-link" active-class="active">AI Chat</router-link>
         <router-link to="/file-management" class="nav-link" active-class="active">Files</router-link>
         <router-link to="/system-usage" class="nav-link" active-class="active">System Usage</router-link>
+        <router-link to="/settings" class="nav-link" active-class="active">Settings</router-link>
       </nav>
     </aside>
 

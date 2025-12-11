@@ -44,6 +44,7 @@ const icon = computed(() => {
   background: #ffffff;
   border-radius: 1rem;
   padding: 1rem;
+  margin: 1rem;
   width: 300px;
   height: 200px;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);

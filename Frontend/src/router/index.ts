@@ -5,6 +5,7 @@ import Spotify from '../views/SpotifyView.vue'
 import Chat from '../views/ChatView.vue'
 import FileManagement from '../views/FileManagementView.vue'
 import SystemUsage from '../views/SystemUsageView.vue'
+import Settings from '../views/SettingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,11 @@ const router = createRouter({
       path: '/system-usage',
       name: 'system-usage',
       component: SystemUsage
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: Settings
     }
   ]
 
