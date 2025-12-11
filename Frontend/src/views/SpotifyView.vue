@@ -1,6 +1,12 @@
+<!-- SpotifyView.vue -->
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import axios from 'axios';
+
+import SpotifyStatus from '../components/SpotifyStatus.vue';
+import SpotifyTrackCard from '../components/SpotifyTrackCard.vue';
+import SpotifyControls from '../components/SpotifyControls.vue';
+import SpotifyDeviceSelector from '../components/SpotifyDeviceSelector.vue';
 
 interface SpotifyDevice {
     id: string;
@@ -11,6 +17,7 @@ interface SpotifyDevice {
 interface SpotifyTrack {
     name: string;
     artist: string;
+    artists: string[];
     progress_s: number;
     duration_s: number;
     is_playing: boolean;
@@ -20,9 +27,15 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default defineComponent({
     name: 'SpotifyView',
+    components: {
+        SpotifyStatus,
+        SpotifyTrackCard,
+        SpotifyControls,
+        SpotifyDeviceSelector
+    },
     setup() {
         const devices = ref<SpotifyDevice[]>([]);
-        const selectedDevice = ref<string | null>(null);
+        const selectedDevice = ref<string | undefined>(undefined);
         const currentTrack = ref<SpotifyTrack | null>(null);
         const error = ref<string | null>(null);
 
@@ -43,7 +56,20 @@ export default defineComponent({
         const fetchCurrentTrack = async () => {
             try {
                 const res = await axios.get(`${backendUrl}/spotify/current`);
-                currentTrack.value = res.data.error ? null : res.data;
+                if (res.data && !res.data.error) {
+                    const data = res.data;
+                    const artist = data.artist ?? (Array.isArray(data.artists) && data.artists.length > 0 ? data.artists[0] : '');
+                    currentTrack.value = {
+                        name: data.name,
+                        artist,
+                        artists: data.artists || [],
+                        progress_s: data.progress_s ?? 0,
+                        duration_s: data.duration_s ?? 1,
+                        is_playing: Boolean(data.is_playing)
+                    };
+                } else {
+                    currentTrack.value = null;
+                }
             } catch {
                 error.value = 'Failed to fetch current track.';
             }
@@ -73,9 +99,9 @@ export default defineComponent({
             fetchCurrentTrack();
         };
 
-        const seek = async (position: number) => {
+        const seek = async (pos: number) => {
             if (!selectedDevice.value) return;
-            await axios.post(`${backendUrl}/spotify/seek`, { device_id: selectedDevice.value, position_s: position });
+            await axios.post(`${backendUrl}/spotify/seek`, { device_id: selectedDevice.value, position_s: pos });
             fetchCurrentTrack();
         };
 
@@ -115,162 +141,48 @@ export default defineComponent({
 
 <template>
     <div class="container">
-        <div v-if="error" class="status error">{{ error }}</div>
-        <div v-if="!currentTrack && !error" class="status">No track currently playing.</div>
+        <SpotifyStatus :error="error ?? undefined" :currentTrack="currentTrack" />
 
-        <div v-if="currentTrack" class="spotify-card">
-            <div class="track-art">
-                <div class="album-placeholder">🎵</div>
-            </div>
+        <SpotifyTrackCard
+            v-if="currentTrack"
+            :track="currentTrack"
+            :progressPercent="progressPercent"
+        />
 
-            <div class="track-info">
-                <div class="track-name">{{ currentTrack.name }}</div>
-                <div class="track-artist">{{ currentTrack.artist }}</div>
+        <SpotifyControls
+            v-if="currentTrack"
+            :isPlaying="currentTrack.is_playing"
+            @play="play"
+            @pause="pause"
+            @next="nextTrack"
+            @prev="prevTrack"
+        />
 
-                <div class="progress-bar">
-                    <div class="progress" :style="{ width: progressPercent + '%' }"></div>
-                </div>
-            </div>
-
-            <div class="controls">
-                <button @click="prevTrack" title="Previous Track">⏮️</button>
-                <button @click="play" v-if="!currentTrack.is_playing" title="Play">▶️</button>
-                <button @click="pause" v-else title="Pause">⏸️</button>
-                <button @click="nextTrack" title="Next Track">⏭️</button>
-            </div>
-
-            <div class="devices">
-                <label for="device-select">Device:</label>
-                <select id="device-select" v-model="selectedDevice">
-                    <option v-for="device in devices" :key="device.id" :value="device.id">
-                        {{ device.name }} ({{ device.type }})
-                    </option>
-                </select>
-            </div>
-        </div>
+        <SpotifyDeviceSelector
+            v-if="devices.length > 0"
+            :devices="devices"
+            v-model="selectedDevice"
+        />
     </div>
 </template>
 
 <style scoped>
 .container {
-    max-width: 480px;
-    margin: 2rem auto;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    padding: 1rem;
+    max-width: 500px;
+    margin: 3.5rem auto;
+    padding: 2.5rem;
+
+    background: #1e1e1e;
+    border-radius: 2rem;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 10px rgba(255, 255, 255, 0.05);
+
+    transition: transform 0.25s ease;
 }
 
-.status {
-    text-align: center;
-    font-size: 1rem;
-    color: #6b7280;
-    margin-bottom: 1rem;
-    transition: color 0.3s ease;
-}
-
-.status.error {
-    color: #ef4444;
-}
-
-.spotify-card {
-    background: linear-gradient(145deg, #222, #2c2c2c);
-    color: #fff;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-}
-
-.track-art {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-}
-
-.album-placeholder {
-    font-size: 4rem;
-    width: 100px;
-    height: 100px;
-    background: #374151;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 1rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
-
-.track-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-}
-
-.track-name {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.track-artist {
-    font-size: 1rem;
-    color: #9ca3af;
-}
-
-.progress-bar {
-    height: 8px;
-    background: #374151;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 0.5rem;
-}
-
-.progress {
-    height: 100%;
-    background: #3b82f6;
-    transition: width 0.2s ease;
-}
-
-.controls {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    font-size: 1.8rem;
-}
-
-.controls button {
-    background: linear-gradient(145deg, #1f1f1f, #2a2a2a);
-    border: none;
-    color: #fff;
-    padding: 0.6rem 1rem;
-    border-radius: 0.75rem;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.controls button:hover {
-    transform: scale(1.2);
-    background: linear-gradient(145deg, #3b82f6, #2563eb);
-}
-
-.devices {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-}
-
-.devices label {
-    font-size: 0.9rem;
-    color: #d1d5db;
-}
-
-.devices select {
-    background: #374151;
-    color: #fff;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.3rem 0.5rem;
-    font-size: 0.9rem;
+.container:hover {
+    transform: translateY(-4px);
 }
 </style>

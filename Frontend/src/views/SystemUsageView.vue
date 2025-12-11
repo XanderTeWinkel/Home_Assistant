@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, onMounted, onBeforeUnmount } from 'vue';
-import { useSystemStore } from '../system';
+import { useSystemStore } from '../composables/system';
 
 export default defineComponent({
   name: 'SystemUsage',
