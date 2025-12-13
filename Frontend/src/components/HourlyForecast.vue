@@ -5,7 +5,17 @@ const props = defineProps({
   weather: { type: Object, required: true }
 });
 
-const icon = "☁️";
+// Helper function to get emoji based on description
+function getIcon(desc: string) {
+  if (!desc) return "🌡️";
+  if (desc.includes("Clear")) return "☀️";
+  if (desc.includes("Cloud")) return "☁️";
+  if (desc.includes("Rain") || desc.includes("drizzle")) return "🌧️";
+  if (desc.includes("Snow")) return "❄️";
+  if (desc.includes("Thunderstorm")) return "⛈️";
+  if (desc.includes("Fog")) return "🌫️";
+  return "🌡️";
+}
 
 // Compute a 7-hour window: 2 before, current, 4 after
 const windowData = computed(() => {
@@ -21,11 +31,9 @@ const windowData = computed(() => {
 
   if (idx === -1) return [];
 
-  // desired window: idx - 2 ... idx + 4
   let start = idx - 2;
-  let end = idx + 5; // slice end is exclusive
+  let end = idx + 5;
 
-  // clamp to bounds
   if (start < 0) {
     end += Math.abs(start);
     start = 0;
@@ -39,15 +47,19 @@ const windowData = computed(() => {
 
   return w.hourly.temperature_2m.slice(start, end).map((temp: number, i: number) => {
     const actual = start + i;
+    // Optional: map hourly weather codes to description
+    const weatherCode = w.weathercode; // fallback to current weather
+    const description = w.weather_description; // fallback
+
     return {
       temp,
       time: w.hourly.time[actual],
       precipitation: w.hourly.precipitation[actual],
-      isCurrent: actual === idx
+      isCurrent: actual === idx,
+      icon: getIcon(description)
     };
   });
 });
-
 </script>
 
 <template>
@@ -55,7 +67,7 @@ const windowData = computed(() => {
     <div class="hourly-list">
       <div v-for="(h, i) in windowData" :key="i" :class="['hour-card', { current: h.isCurrent }]">
         <div class="hour-temp">{{ h.temp }}°C</div>
-        <div class="hour-icon">{{ icon }}</div>
+        <div class="hour-icon">{{ h.icon }}</div>
         <div class="hour-time">
           {{ h.time.split("T")[1].slice(0, 2) }}:00
         </div>
@@ -64,6 +76,7 @@ const windowData = computed(() => {
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .card.hourly {
