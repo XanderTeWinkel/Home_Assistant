@@ -1,34 +1,5 @@
-<template>
-  <div class="news-section" v-if="news.length">
-    <transition name="fade" mode="out-in">
-      <div
-        class="news-card"
-        :key="index"
-        @mouseenter="$emit('update:isHovering', true)"
-        @mouseleave="$emit('update:isHovering', false)"
-        :style="current.image ? { backgroundImage: `url(${current.image})` } : {}"
-      >
-        <div class="news-overlay">
-          <h3 class="news-title">{{ current.title }}</h3>
-          <p class="news-description">{{ current.description }}</p>
-          <a :href="current.link" target="_blank" class="news-link">Read more</a>
-        </div>
-      </div>
-    </transition>
-
-    <div class="dots">
-      <span
-        v-for="(n, i) in news"
-        :key="i"
-        :class="['dot', { active: i === index }]"
-        @click="$emit('goTo', i)"
-      ></span>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, type PropType } from "vue";
+import { computed, type PropType, ref, onMounted, onUnmounted } from "vue";
 
 interface NewsItem {
   title?: string;
@@ -49,18 +20,73 @@ const emit = defineEmits<{
 }>();
 
 const current = computed<NewsItem>(() => props.news?.[props.index] ?? ({} as NewsItem));
+
+// Reactive window width to detect screen size
+const windowWidth = ref(window.innerWidth);
+
+const updateWidth = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth);
+});
+
+const visibleNews = computed(() => {
+  // Show 1 item on screens below 1170px, otherwise 3
+  const num = windowWidth.value < 1170 ? 1 : 3;
+  return props.news.slice(props.index, props.index + num);
+});
 </script>
+
+<template>
+  <div class="news-section" v-if="news.length">
+    <div class="news-carousel">
+      <transition-group name="fade" tag="div" class="news-cards-wrapper">
+        <div class="news-card" v-for="(item, i) in visibleNews" :key="i" @mouseenter="$emit('update:isHovering', true)"
+          @mouseleave="$emit('update:isHovering', false)"
+          :style="item.image ? { backgroundImage: `url(${item.image})` } : {}">
+          <div class="news-overlay">
+            <h3 class="news-title">{{ item.title }}</h3>
+            <p class="news-description">{{ item.description }}</p>
+            <a :href="item.link" target="_blank" class="news-link">Read more</a>
+          </div>
+        </div>
+      </transition-group>
+    </div>
+
+    <div class="dots">
+      <span v-for="(n, i) in news" :key="i" :class="['dot', { active: i === index }]" @click="$emit('goTo', i)"></span>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .news-section {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
-.news-card {
+.news-cards-wrapper {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
   width: 100%;
-  max-width: 500px;
+  flex-wrap: wrap;
+}
+
+/* Each news card */
+.news-card {
+  flex: 1 1 calc(33% - 1rem);
+  /* 3 cards per row with gap */
+  max-width: 350px;
+  /* optional, adjusts card size */
   height: 280px;
   border-radius: 1rem;
   overflow: hidden;
@@ -75,6 +101,7 @@ const current = computed<NewsItem>(() => props.news?.[props.index] ?? ({} as New
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Overlay inside each card */
 .news-overlay {
   width: 100%;
   padding: 1rem;
@@ -108,6 +135,7 @@ const current = computed<NewsItem>(() => props.news?.[props.index] ?? ({} as New
   text-decoration: underline;
 }
 
+/* Dots navigation */
 .dots {
   display: flex;
   justify-content: center;
@@ -127,6 +155,7 @@ const current = computed<NewsItem>(() => props.news?.[props.index] ?? ({} as New
   background-color: #3b82f6;
 }
 
+/* Fade transition for carousel */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;
@@ -135,5 +164,20 @@ const current = computed<NewsItem>(() => props.news?.[props.index] ?? ({} as New
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Responsive: fallback for smaller screens */
+@media (max-width: 1170px) {
+  .news-cards-wrapper {
+    flex-wrap: nowrap;
+    /* optional: keep cards from wrapping */
+    justify-content: center;
+  }
+
+  .news-card {
+    flex: 1 1 100%;
+    /* each card takes full width */
+    /* max-width: 100%; */
+  }
 }
 </style>

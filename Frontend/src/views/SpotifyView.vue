@@ -169,7 +169,7 @@ export default defineComponent({
 <style scoped>
 .container {
     max-width: 500px;
-    margin: 3.5rem auto;
+    /* margin: 3.5rem auto; */
     padding: 2.5rem;
 
     background: #1e1e1e;
@@ -180,9 +180,5 @@ export default defineComponent({
         0 0 10px rgba(255, 255, 255, 0.05);
 
     transition: transform 0.25s ease;
-}
-
-.container:hover {
-    transform: translateY(-4px);
 }
 </style>
