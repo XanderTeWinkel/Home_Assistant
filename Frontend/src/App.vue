@@ -156,6 +156,7 @@ const route = useRoute();
   letter-spacing: 0.6px;
 
   background: linear-gradient(135deg, #111827, #4f46e5);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
