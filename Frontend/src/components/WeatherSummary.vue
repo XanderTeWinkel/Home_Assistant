@@ -1,25 +1,3 @@
-<template>
-  <div class="card summary" v-if="weather">
-    <div class="summary-top">
-      <div class="temperature">{{ Math.round(weather.temperature) }}°C</div>
-      <div class="description">
-        <div class="desc-main">
-          <span class="icon">{{ icon }}</span>
-          <span>{{ weather.weather_description }}</span>
-        </div>
-        <div class="updated">Updated: {{ weather.time.split("T")[1] }}</div>
-      </div>
-    </div>
-
-    <div class="summary-bottom">
-      <div>Humidity: {{ weather.hourly.humidity[0] }}%</div>
-      <div>Wind: {{ Math.round(weather.windspeed) }} km/h</div>
-      <div>Direction: {{ weather.winddirection }}°</div>
-      <div>Precipitation: {{ weather.hourly.precipitation[0] }} mm</div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed } from "vue";
 
@@ -39,38 +17,101 @@ const icon = computed(() => {
 });
 </script>
 
+
+
+<template>
+  <div class="card summary" v-if="weather">
+    <div class="summary-header">
+      <div class="temp-block">
+        <div class="temperature">{{ Math.round(weather.temperature) }}°</div>
+        <div class="feels">Celsius</div>
+      </div>
+
+      <div class="condition">
+        <div class="condition-main">
+          <span class="icon">{{ icon }}</span>
+          <span class="text">{{ weather.weather_description }}</span>
+        </div>
+        <div class="updated">
+          Updated {{ weather.time.split("T")[1].slice(0, 5) }}
+        </div>
+      </div>
+    </div>
+
+    <div class="divider" />
+
+    <div class="summary-stats">
+      <div class="stat">
+        <span>💧</span>
+        <span>{{ weather.hourly.humidity[0] }}%</span>
+        <small>Humidity</small>
+      </div>
+
+      <div class="stat">
+        <span>🌬️</span>
+        <span>{{ Math.round(weather.windspeed) }} km/h</span>
+        <small>Wind</small>
+      </div>
+
+      <div class="stat">
+        <span>🧭</span>
+        <span>{{ weather.winddirection }}°</span>
+        <small>Direction</small>
+      </div>
+
+      <div class="stat">
+        <span>🌧️</span>
+        <span>{{ weather.hourly.precipitation[0] }} mm</span>
+        <small>Rain</small>
+      </div>
+    </div>
+  </div>
+</template>
+
+
+
 <style scoped>
-.card {
-  background: #ffffff;
-  border-radius: 1rem;
-  padding: 1rem;
-  margin: 1rem;
-  width: 300px;
-  height: 200px;
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+.card.summary {
+  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  width: 320px;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.08);
 }
 
-.summary-top {
+.summary-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+}
+
+.temp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .temperature {
-  font-size: 3rem;
-  font-weight: bold;
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.description {
-  display: flex;
-  flex-direction: column;
+.feels {
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
-.desc-main {
+.condition {
+  text-align: right;
+}
+
+.condition-main {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 1.25rem;
+  font-weight: 500;
 }
 
 .icon {
@@ -78,17 +119,39 @@ const icon = computed(() => {
 }
 
 .updated {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #6b7280;
   margin-top: 0.25rem;
 }
 
-.summary-bottom {
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 1rem 0;
+}
+
+.summary-stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  color: #4b5563;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.stat {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  text-align: center;
+  box-shadow: inset 0 0 0 1px #f1f5f9;
+}
+
+.stat span {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.stat small {
+  font-size: 0.7rem;
+  color: #6b7280;
 }
 </style>

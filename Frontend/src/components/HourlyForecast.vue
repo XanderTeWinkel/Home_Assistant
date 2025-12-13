@@ -1,22 +1,3 @@
-<template>
-  <div class="card hourly" v-if="windowData.length">
-    <div class="hourly-list">
-      <div
-        v-for="(h, i) in windowData"
-        :key="i"
-        :class="['hour-card', { current: h.isCurrent }]"
-      >
-        <div class="hour-temp">{{ h.temp }}°C</div>
-        <div class="hour-icon">{{ icon }}</div>
-        <div class="hour-time">
-          {{ h.time.split("T")[1].slice(0, 2) }}:00
-        </div>
-        <div class="hour-precip">{{ h.precipitation }} mm</div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed } from "vue";
 
@@ -24,20 +5,37 @@ const props = defineProps({
   weather: { type: Object, required: true }
 });
 
-const icon = "☁️"; // simplified, could accept prop
+const icon = "☁️";
 
-// Compute a 13-hour sliding window centered on current hour
+// Compute a 7-hour window: 2 before, current, 4 after
 const windowData = computed(() => {
   const w = props.weather;
   if (!w) return [];
 
-  const nowHour = new Date(w.time).getHours();
+  const now = new Date(w.time);
+  const nowHour = now.getHours();
+
   const idx = w.hourly.time.findIndex(
     (t: string) => new Date(t).getHours() === nowHour
   );
 
-  const start = Math.max(0, idx - 6);
-  const end = start + 13;
+  if (idx === -1) return [];
+
+  // desired window: idx - 2 ... idx + 4
+  let start = idx - 2;
+  let end = idx + 5; // slice end is exclusive
+
+  // clamp to bounds
+  if (start < 0) {
+    end += Math.abs(start);
+    start = 0;
+  }
+
+  if (end > w.hourly.time.length) {
+    start -= end - w.hourly.time.length;
+    end = w.hourly.time.length;
+    start = Math.max(0, start);
+  }
 
   return w.hourly.temperature_2m.slice(start, end).map((temp: number, i: number) => {
     const actual = start + i;
@@ -49,16 +47,31 @@ const windowData = computed(() => {
     };
   });
 });
+
 </script>
+
+<template>
+  <div class="card hourly" v-if="windowData.length">
+    <div class="hourly-list">
+      <div v-for="(h, i) in windowData" :key="i" :class="['hour-card', { current: h.isCurrent }]">
+        <div class="hour-temp">{{ h.temp }}°C</div>
+        <div class="hour-icon">{{ icon }}</div>
+        <div class="hour-time">
+          {{ h.time.split("T")[1].slice(0, 2) }}:00
+        </div>
+        <div class="hour-precip">{{ h.precipitation }} mm</div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .card.hourly {
-  width: 100%;
+  width: 38rem;
   overflow-x: auto;
   background: #ffffff;
   border-radius: 1rem;
   padding: 1rem;
-  margin: 1rem;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
 }
 

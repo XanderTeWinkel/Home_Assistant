@@ -53,7 +53,6 @@ const current = computed<NewsItem>(() => props.news?.[props.index] ?? ({} as New
 
 <style scoped>
 .news-section {
-  margin-top: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -74,11 +73,6 @@ const current = computed<NewsItem>(() => props.news?.[props.index] ?? ({} as New
   align-items: flex-end;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.news-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
 }
 
 .news-overlay {
