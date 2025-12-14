@@ -19,6 +19,7 @@ const route = useRoute();
       </div>
       <nav class="sidebar-nav">
         <router-link to="/home" class="nav-link" active-class="active">Home</router-link>
+        <router-link to="/people" class="nav-link" active-class="active">People</router-link>
         <!-- <router-link to="/spotify" class="nav-link" active-class="active">Spotify</router-link> -->
         <router-link to="/chat" class="nav-link" active-class="active">AI Chat</router-link>
         <router-link to="/file-management" class="nav-link" active-class="active">Files</router-link>
@@ -35,7 +36,9 @@ const route = useRoute();
         </div>
 
         <div class="header-right">
-          <div class="avatar">C</div>
+          <router-link to="/profile" class="avatar-link" title="Profile">
+            <div class="avatar">C</div>
+          </router-link>
         </div>
       </header>
       <main class="content">
@@ -201,7 +204,10 @@ const route = useRoute();
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
-
+.avatar-link {
+  display: inline-flex;
+  text-decoration: none;
+}
 
 .content {
   flex: 1;
