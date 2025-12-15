@@ -30,7 +30,7 @@ export default {
                 });
                 // Save JWT in localStorage
                 localStorage.setItem("token", res.data.access_token);
-                this.$router.push("/dashboard"); // redirect after login
+                this.$router.push("/"); // redirect after login
             } catch (err) {
                 this.error = err.response.data.message || "Login failed";
             }

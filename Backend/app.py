@@ -43,27 +43,6 @@ with app.app_context():
     db.create_all()
 
 # --------------------------------------------------
-# Authentication routes
-# --------------------------------------------------
-# @auth_bp.route("/register", methods=["POST"])
-# def register():
-#     data = request.json
-#     user = User(username=data["username"])
-#     user.set_password(data["password"])
-#     db.session.add(user)
-#     db.session.commit()
-#     return jsonify({"message": "User registered"}), 201
-
-# @auth_bp.route("/login", methods=["POST"])
-# def login():
-#     data = request.json
-#     user = User.query.filter_by(username=data["username"]).first()
-#     if not user or not user.check_password(data["password"]):
-#         return jsonify({"message": "Invalid credentials"}), 401
-#     token = create_access_token(identity=user.id)
-#     return jsonify({"access_token": token})
-
-# --------------------------------------------------
 # Existing routes
 # --------------------------------------------------
 
