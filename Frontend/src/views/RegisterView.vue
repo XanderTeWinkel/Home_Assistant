@@ -20,7 +20,7 @@ const register = async () => {
     loading.value = true;
 
     try {
-        const response = await api.post("/auth/login", {
+        const response = await api.post("/auth/register", {
             username: username.value,
             password: password.value,
         });
