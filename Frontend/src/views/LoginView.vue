@@ -1,40 +1,160 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import axios from "axios";
+
+const router = useRouter();
+
+const username = ref("");
+const password = ref("");
+const error = ref("");
+const loading = ref(false);
+
+// Create an axios instance using the backend URL from .env.local
+const api = axios.create({
+    baseURL: import.meta.env.VITE_BACKEND_URL
+});
+
+const login = async () => {
+    error.value = "";
+    loading.value = true;
+
+    try {
+        const response = await api.post("/auth/login", {
+            username: username.value,
+            password: password.value,
+        });
+
+        localStorage.setItem("access_token", response.data.access_token);
+        await router.push("/home");
+    } catch {
+        error.value = "Invalid username or password";
+    } finally {
+        loading.value = false;
+    }
+};
+</script>
+
 <template>
-    <div class="login">
-        <h2>Login</h2>
-        <form @submit.prevent="login">
-            <input type="text" v-model="username" placeholder="Username" required />
-            <input type="password" v-model="password" placeholder="Password" required />
-            <button type="submit">Login</button>
-        </form>
-        <p v-if="error">{{ error }}</p>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1 class="title">Welcome back</h1>
+            <p class="subtitle">Sign in to Citadel</p>
+
+            <form @submit.prevent="login">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input v-model="username" type="text" placeholder="Enter username" />
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input v-model="password" type="password" placeholder="••••••••" />
+                </div>
+
+                <p v-if="error" class="error">{{ error }}</p>
+
+                <button type="submit" :disabled="loading">
+                    {{ loading ? "Signing in..." : "Login" }}
+                </button>
+            </form>
+
+            <p class="switch">
+                Don’t have an account?
+                <router-link to="/register">Register</router-link>
+            </p>
+        </div>
     </div>
 </template>
 
-<script>
-import axios from "axios";
+<style scoped>
+.auth-container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-export default {
-    data() {
-        return {
-            username: "",
-            password: "",
-            error: null,
-        };
-    },
-    methods: {
-        async login() {
-            try {
-                const res = await axios.post("http://localhost:1024/auth/login", {
-                    username: this.username,
-                    password: this.password,
-                });
-                // Save JWT in localStorage
-                localStorage.setItem("token", res.data.access_token);
-                this.$router.push("/"); // redirect after login
-            } catch (err) {
-                this.error = err.response.data.message || "Login failed";
-            }
-        },
-    },
-};
-</script>
+.auth-card {
+    width: 360px;
+    padding: 2rem;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow:
+        0 10px 25px rgba(15, 23, 42, 0.08),
+        0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    color: #374151;
+    margin-bottom: 0.35rem;
+}
+
+input {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+button {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.error {
+    color: #dc2626;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.switch {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.switch a {
+    color: #6366f1;
+    font-weight: 600;
+    text-decoration: none;
+}
+</style>

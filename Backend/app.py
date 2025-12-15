@@ -45,7 +45,6 @@ with app.app_context():
 # --------------------------------------------------
 # Existing routes
 # --------------------------------------------------
-
 @app.route("/system-info")
 def system_info():
     return jsonify(
