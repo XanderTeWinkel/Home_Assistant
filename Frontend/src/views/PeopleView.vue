@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import axios from "axios";
 
 interface User {
     id: string;
@@ -9,9 +10,16 @@ interface User {
 
 const users = ref<User[]>([]);
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const fetchUsers = async () => {
-    const response = await fetch("http://localhost:1024/users");
-    users.value = await response.json();
+    try {
+        const response = await axios.get<User[]>(`${backendUrl}/users`);
+        users.value = response.data;
+    } catch (error) {
+        console.error("Failed to fetch users:", error);
+        users.value = [];
+    }
 };
 
 onMounted(fetchUsers);
