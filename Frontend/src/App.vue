@@ -1,26 +1,43 @@
 <script setup lang="ts">
-// Vue Router hooks
-import { useRouter, useRoute } from "vue-router";
+import { computed, ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
-// Initialize router and route
-const router = useRouter();
 const route = useRoute();
+const isAuthPage = computed(() => route.name === "login" || route.name === "register");
+
+const username = ref("");
+
+// Fetch username for avatar
+const token = localStorage.getItem("access_token");
+
+if (token) {
+  const api = axios.create({
+    baseURL: import.meta.env.VITE_BACKEND_URL,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  onMounted(async () => {
+    try {
+      const res = await api.get("/auth/me");
+      username.value = res.data.username;
+    } catch {
+      console.error("Failed to load user info for avatar.");
+    }
+  });
+}
 </script>
 
-
-
 <template>
-  <!-- < backend_test /> -->
   <div id="app">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-
-      </div>
+    <aside class="sidebar" v-if="!isAuthPage">
+      <div class="sidebar-header"></div>
       <nav class="sidebar-nav">
         <router-link to="/home" class="nav-link" active-class="active">Home</router-link>
         <router-link to="/people" class="nav-link" active-class="active">People</router-link>
-        <!-- <router-link to="/spotify" class="nav-link" active-class="active">Spotify</router-link> -->
         <router-link to="/chat" class="nav-link" active-class="active">AI Chat</router-link>
         <router-link to="/file-management" class="nav-link" active-class="active">Files</router-link>
         <router-link to="/system-usage" class="nav-link" active-class="active">System Usage</router-link>
@@ -30,17 +47,20 @@ const route = useRoute();
 
     <!-- Main content -->
     <div class="main-content">
-      <header class="header">
+      <header class="header" v-if="!isAuthPage">
         <div class="header-left">
           <span class="app-name">Citadel</span>
         </div>
 
         <div class="header-right">
           <router-link to="/profile" class="avatar-link" title="Profile">
-            <div class="avatar">C</div>
+            <div class="avatar">
+              {{ username ? username.charAt(0).toUpperCase() : "C" }}
+            </div>
           </router-link>
         </div>
       </header>
+
       <main class="content">
         <router-view></router-view>
       </main>
@@ -196,11 +216,9 @@ const route = useRoute();
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 

@@ -1,19 +1,50 @@
 from flask import Flask, jsonify, request
-import psutil
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+import psutil
 
-# Import custom modules
+# Extensions
+from extensions import db, jwt
+
+# Blueprints
+from auth import auth_bp
+
+# Import existing feature modules
 from nos import fetch_nos_news
 from weather import fetch_weather
 from network_files import get_files_list
 from ai_chat import chat_with_ai
-
 import spotify as spotify
 
+
+# --------------------------------------------------
+# App setup
+# --------------------------------------------------
+
+load_dotenv()
+
 app = Flask(__name__)
-CORS(app)  # allow all origins
+CORS(app)
 
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
+db.init_app(app)
+jwt.init_app(app)
+
+# Register blueprints
+app.register_blueprint(auth_bp)
+
+# Create DB tables within an application context to avoid using the decorator
+# (some type checkers/IDE stubs may not recognize Flask.before_first_request).
+with app.app_context():
+    db.create_all()
+
+# --------------------------------------------------
+# Existing routes
+# --------------------------------------------------
 @app.route("/system-info")
 def system_info():
     return jsonify(
@@ -41,19 +72,22 @@ def files_in_folder():
 
 @app.route("/nos-news")
 def nos_news():
-    news = fetch_nos_news()
-    return jsonify(news)
+    return jsonify(fetch_nos_news())
 
 
 @app.route("/weather")
 def weather():
-    weather_data = fetch_weather()
-    return jsonify(weather_data)
+    return jsonify(fetch_weather())
 
 
 @app.route("/dashboard-data")
 def dashboard_data():
-    return jsonify({"weather": fetch_weather("winterswijk"), "news": fetch_nos_news()})
+    return jsonify(
+        {
+            "weather": fetch_weather("winterswijk"),
+            "news": fetch_nos_news(),
+        }
+    )
 
 
 @app.route("/chat")
@@ -65,7 +99,10 @@ def chat():
     return jsonify({"response": response})
 
 
-# Spotify routes
+# --------------------------------------------------
+# Spotify routes (UNCHANGED)
+# --------------------------------------------------
+
 @app.route("/spotify/current")
 def spotify_current():
     return jsonify(spotify.get_current_track())
@@ -107,6 +144,10 @@ def spotify_seek():
     position_s = data.get("position_s")
     return jsonify(spotify.seek_track(position_s, device_id))
 
+
+# --------------------------------------------------
+# App entrypoint
+# --------------------------------------------------
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=1024)
