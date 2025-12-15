@@ -99,6 +99,21 @@ def chat():
     return jsonify({"response": response})
 
 
+@app.route("/users", methods=["GET"])
+def get_users():
+    from models import User  # make sure you import the User model if it's in a separate file
+    users = User.query.all()
+    # Convert users to a serializable format
+    users_list = [
+        {
+            "id": str(user.id),
+            "username": user.username,
+            "created_at": user.created_at.isoformat(),
+        }
+        for user in users
+    ]
+    return jsonify(users_list)
+
 # --------------------------------------------------
 # Spotify routes (UNCHANGED)
 # --------------------------------------------------
