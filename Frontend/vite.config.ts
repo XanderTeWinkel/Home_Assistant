@@ -17,6 +17,7 @@ export default defineConfig({
   },
   server: {
     host: true, // listens on all interfaces
-    port: 5173   // optional: set your port
+    port: 5173,   // optional: set your port
+    allowedHosts: ['citadel.local'] // allow this host
   }
 })
