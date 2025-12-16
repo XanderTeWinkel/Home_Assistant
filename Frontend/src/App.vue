@@ -7,16 +7,14 @@ const route = useRoute();
 const isAuthPage = computed(() => route.name === "login" || route.name === "register");
 
 const username = ref("");
+const mobileSidebarOpen = ref(false);
 
-// Fetch username for avatar
+// Fetch username
 const token = localStorage.getItem("access_token");
-
 if (token) {
   const api = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
   });
 
   onMounted(async () => {
@@ -24,36 +22,42 @@ if (token) {
       const res = await api.get("/auth/me");
       username.value = res.data.username;
     } catch {
-      console.error("Failed to load user info for avatar.");
+      console.error("Failed to load user info.");
     }
   });
 }
 </script>
 
+
 <template>
   <div id="app">
     <!-- Sidebar -->
-    <aside class="sidebar" v-if="!isAuthPage">
-      <div class="sidebar-header"></div>
+    <aside class="sidebar" v-if="!isAuthPage" :class="{ open: mobileSidebarOpen }">
       <nav class="sidebar-nav">
-        <router-link to="/home" class="nav-link" active-class="active">Home</router-link>
-        <router-link to="/people" class="nav-link" active-class="active">People</router-link>
-        <router-link to="/chat" class="nav-link" active-class="active">AI Chat</router-link>
-        <router-link to="/file-management" class="nav-link" active-class="active">Files</router-link>
-        <router-link to="/system-usage" class="nav-link" active-class="active">System Usage</router-link>
-        <router-link to="/settings" class="nav-link" active-class="active">Settings</router-link>
+        <router-link @click="mobileSidebarOpen = false" to="/home" class="nav-link">Home</router-link>
+        <router-link @click="mobileSidebarOpen = false" to="/people" class="nav-link">People</router-link>
+        <router-link @click="mobileSidebarOpen = false" to="/chat" class="nav-link">AI Chat</router-link>
+        <router-link @click="mobileSidebarOpen = false" to="/file-management" class="nav-link">Files</router-link>
+        <router-link @click="mobileSidebarOpen = false" to="/system-usage" class="nav-link">System Usage</router-link>
+        <router-link @click="mobileSidebarOpen = false" to="/settings" class="nav-link">Settings</router-link>
       </nav>
     </aside>
+
 
     <!-- Main content -->
     <div class="main-content">
       <header class="header" v-if="!isAuthPage">
         <div class="header-left">
+          <!-- Mobile menu button -->
+          <button class="menu-btn" @click="mobileSidebarOpen = !mobileSidebarOpen">
+            ☰
+          </button>
+
           <span class="app-name">Citadel</span>
         </div>
 
         <div class="header-right">
-          <router-link to="/profile" class="avatar-link" title="Profile">
+          <router-link to="/profile" class="avatar-link">
             <div class="avatar">
               {{ username ? username.charAt(0).toUpperCase() : "C" }}
             </div>
@@ -231,5 +235,95 @@ if (token) {
   flex: 1;
   padding: 1.5rem;
   overflow-y: auto;
+}
+
+/* ============================= */
+/* Responsive / Mobile Styles   */
+/* ============================= */
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Tablet and below */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 150px;
+  }
+
+  .app-name {
+    font-size: 1.8rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  .menu-btn {
+    display: inline-flex;
+  }
+
+  /* Sidebar becomes off-canvas */
+  .sidebar {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    height: calc(100vh - 64px);
+    width: 220px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 50;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    width: 100%;
+  }
+
+  .header {
+    padding: 0 1rem;
+  }
+
+  .header-left::after {
+    display: none;
+  }
+
+  .app-name {
+    font-size: 1.4rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
+  }
+
+  .nav-link {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .content {
+    padding: 0.75rem;
+  }
 }
 </style>

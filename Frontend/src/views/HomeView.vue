@@ -18,27 +18,28 @@ const { news, currentIndex, goTo, isHovering } = useNews();
 
 <template>
   <div class="home">
-    <!-- Loading/Error States -->
+    <!-- Loading / Error States -->
     <div v-if="loading" class="status">Loading home page...</div>
     <div v-else-if="error" class="status error">{{ error }}</div>
 
+    <!-- Main Grid -->
     <div v-else-if="weather" class="grid">
-      <!-- Row 1: Current Weather -->
+      <!-- Weather Summary -->
       <section class="card card-hero">
         <WeatherSummary :weather="weather" />
       </section>
 
-      <!-- Spotify (spans top 2 rows) -->
+      <!-- Spotify -->
       <section class="card card-spotify">
         <SpotifyView />
       </section>
 
-      <!-- Row 2: Hourly Forecast -->
+      <!-- Hourly Forecast (desktop only) -->
       <section class="card card-hourly">
         <HourlyForecast :weather="weather" />
       </section>
 
-      <!-- Row 3: News -->
+      <!-- News -->
       <section class="card card-wide" v-if="news.length">
         <NewsCarousel :news="news" :index="currentIndex" :isHovering="isHovering" @goTo="goTo" />
       </section>
@@ -47,7 +48,9 @@ const { news, currentIndex, goTo, isHovering } = useNews();
 </template>
 
 <style scoped>
-/* Status Messages */
+/* ============================= */
+/* Status Messages               */
+/* ============================= */
 .status {
   text-align: center;
   font-size: 1rem;
@@ -59,62 +62,100 @@ const { news, currentIndex, goTo, isHovering } = useNews();
   color: #ef4444;
 }
 
-/* Grid Layout */
+/* ============================= */
+/* Grid Layout (Desktop)         */
+/* ============================= */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* 2 columns */
-  grid-template-rows: auto auto auto;
-  /* 3 rows */
+  grid-template-areas:
+    "hero spotify"
+    "hourly spotify"
+    "news news";
   gap: 1.5rem;
-  justify-items: center;
-  align-items: start;
+  align-items: stretch;
 }
 
-/* Cards */
+/* ============================= */
+/* Cards                         */
+/* ============================= */
 .card {
   width: 100%;
   background: #ffffff;
   border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  padding: 1.25rem;
 
-  /* Flexbox for centering */
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
 }
 
-/* Specific Positions */
+/* ============================= */
+/* Grid Areas                    */
+/* ============================= */
 .card-hero {
-  grid-column: 1;
-  /* left column */
-  grid-row: 1;
+  grid-area: hero;
 }
 
 .card-spotify {
-  grid-column: 2;
-  /* right column */
-  grid-row: 1 / span 2;
-  /* spans top 2 rows */
-  padding: 1rem;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  grid-area: spotify;
 }
 
 .card-hourly {
-  grid-column: 1;
-  /* left column */
-  grid-row: 2;
+  grid-area: hourly;
 }
 
 .card-wide {
-  grid-column: 1 / span 2;
-  /* spans both columns */
-  grid-row: 3;
+  grid-area: news;
+}
+
+/* ============================= */
+/* Hide Hourly on Tablets/Mobile */
+/* ============================= */
+@media (max-width: 1024px) {
+  .card-hourly {
+    display: none;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "hero"
+      "spotify"
+      "news";
+  }
+
+  .card {
+    padding: 1.1rem;
+  }
+}
+
+/* ============================= */
+/* Mobile                        */
+/* ============================= */
+@media (max-width: 768px) {
+  .grid {
+    gap: 1rem;
+  }
+
+  .card {
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+  }
+}
+
+/* ============================= */
+/* Small Phones                  */
+/* ============================= */
+@media (max-width: 480px) {
+  .card {
+    padding: 0.85rem;
+  }
+
+  .status {
+    font-size: 0.9rem;
+  }
 }
 </style>
